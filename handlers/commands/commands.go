@@ -132,33 +132,22 @@ var (
 
 			switch subCommand.Name {
 			case "channel":
-				// currentSetting := settings.QueryGuildSetting(i.GuildID)
-
 				for _, option := range subCommand.Options {
-
-					// settings.ModifyGuildSetting(i.GuildID, )
-
 					switch option.Name {
-					case "channel":
-						// currentSetting.VoiceID = option.ChannelValue(s).ID
-						// if currentSetting.CategoryID == "" {
-						// 	currentSetting.CategoryID = option.ChannelValue(s).ParentID
-						// }
-						channel := option.ChannelValue(s)
 
+					case "channel":
+						channel := option.ChannelValue(s)
 						settings.ModifyGuildSetting(i.GuildID, settings.WithVoiceID(channel.ID))
 						if settings.QueryGuildSetting(i.GuildID).CategoryID == "" {
 							settings.ModifyGuildSetting(i.GuildID, settings.WithCategoryID(channel.ParentID))
 						}
+
 					case "category":
-						// currentSetting.CategoryID = option.ChannelValue(s).ID
 						category := option.ChannelValue(s)
-
 						settings.ModifyGuildSetting(i.GuildID, settings.WithCategoryID(category.ID))
-					case "template":
-						// currentSetting.VoiceTemplateName = option.StringValue()
-						template := option.StringValue()
 
+					case "template":
+						template := option.StringValue()
 						settings.ModifyGuildSetting(i.GuildID, settings.WithVoiceTemplateName(template))
 					}
 				}
@@ -170,51 +159,13 @@ var (
 					currentSetting.VoiceID, currentSetting.CategoryID, currentSetting.VoiceTemplateName,
 				)
 
-				// err := settings.UpsertGuildSetting(
-				// 	currentSetting.GuildID,
-				// 	true, // RemoveCommands
-				// 	currentSetting.VoiceID,
-				// 	currentSetting.CategoryID,
-				// 	currentSetting.VoiceTemplateName,
-				// 	true, // IsEnabled
-				// )
-				// if err != nil {
-				// 	content = "Failed to update settings: " + err.Error()
-				// } else {
-				// 	content = fmt.Sprintf(
-				// 		"Channel: <#%v>\n"+
-				// 			"Category: <#%v>\n"+
-				// 			"Template: `%v`",
-				// 		currentSetting.VoiceID, currentSetting.CategoryID, currentSetting.VoiceTemplateName,
-				// 	)
-				// }
-
-				log.Println("Updating guild settings cache...")
-				settings.PrintCache()
 			case "activation":
 				activationValue := subCommand.Options[0].BoolValue()
-
 				settings.ModifyGuildSetting(i.GuildID, settings.WithIsEnabled(activationValue))
 				content = fmt.Sprintf("activation: %v", activationValue)
 
-				// currentSetting := settings.QueryGuildSetting(i.GuildID)
-				// if currentSetting != nil {
-				// 	settings.ModifyGuildSetting(i.GuildID, settings.WithIsEnabled(activationValue))
-				// 	content = "Activation successfully toggled."
-				// } else {
-				// 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-				// 		Data: &discordgo.InteractionResponseData{
-				// 			Content: "### Error! `❌`\n >>> There is no channel set yet. Use `/set channel`.",
-				// 			Flags:   discordgo.MessageFlagsEphemeral, // "Only you can see this"
-				// 		},
-				// 	})
-				// 	return
-				// }
 			case "remove-on-offline":
 				activationValue := subCommand.Options[0].BoolValue()
-				log.Printf("remove_on_offline: %v", activationValue)
-
 				settings.ModifyGuildSetting(i.GuildID, settings.WithRemoveCommands(activationValue))
 				content = fmt.Sprintf("remove_on_offline: %v", activationValue)
 			}
@@ -257,13 +208,10 @@ func RegisterCommands(s *discordgo.Session, guildID string) {
 
 	for _, v := range commands {
 		if _, exists := existingCommandNames[v.Name]; exists {
-			// Command already exists
-			log.Printf("[SKP] %v (%v)", v.Name, v.ID)
 			continue
 		}
 
 		// Add command to guild
-		log.Printf("[ADD] %v (%v)", v.Name, v.ID)
 		_, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
@@ -273,7 +221,6 @@ func RegisterCommands(s *discordgo.Session, guildID string) {
 
 func RemoveCommands(s *discordgo.Session, guildID string) {
 	if !settings.QueryGuildSetting(guildID).RemoveCommands {
-		log.Printf("[SKP] RemoveCommands set to FALSE")
 		return
 	}
 
@@ -287,7 +234,7 @@ func RemoveCommands(s *discordgo.Session, guildID string) {
 		if err != nil {
 			log.Panicf("Cannot delete '%v' command: %v", cmd.Name, err)
 		} else {
-			log.Printf("[DEL] %v (%v)", cmd.Name, cmd.ID)
+      // Here for API rate limits
 			time.Sleep(time.Millisecond * 100)
 		}
 	}

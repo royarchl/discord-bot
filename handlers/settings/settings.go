@@ -35,7 +35,6 @@ func InitDatabase() (*sql.DB, error) {
 	err = createTable(db)
 	errors.CheckNilErr(err)
 
-	log.Println("Caching all guild settings...")
 	cacheAllGuildSettings(db)
 
 	Database = db
@@ -77,45 +76,6 @@ func cacheAllGuildSettings(db *sql.DB) {
 		errors.CheckNilErr(err)
 		settingsCache[setting.GuildID] = &setting
 	}
-
-	PrintCache()
-}
-
-// DEPRECATED!
-func upsertGuildSetting(guildID string, removeCommands bool, voiceID, categoryID, voiceTemplateName string, isEnabled bool) error {
-	// I would just like to state that I AM INTENTIONALLY OVERWRITING THE WHOLE STRUCT because going through the hassle of checking
-	// for a change in every property without being able to overload struct comparators like in C++ is not worth the headache for
-	// a minimal improvement in performance for my already shoddy code. Thank you but no.
-
-	cacheMutex.Lock()
-	defer cacheMutex.Unlock()
-
-	if _, exists := settingsCache[guildID]; exists {
-		// update
-		updateSQL := `UPDATE settings SET remove_commands = ?, voice_id = ?, category_id = ?, voice_template_name = ?, is_enabled = ? WHERE guild_id = ?`
-		_, err := Database.Exec(updateSQL, removeCommands, voiceID, categoryID, voiceTemplateName, isEnabled, guildID)
-		if err != nil {
-			return err
-		}
-	} else {
-		// insert
-		insertSQL := `INSERT INTO settings (guild_id, remove_commands, voice_id, category_id, voice_template_name, is_enabled) VALUES (?, ?, ?, ?, ?, ?)`
-		_, err := Database.Exec(insertSQL, guildID, removeCommands, voiceID, categoryID, voiceTemplateName, isEnabled)
-		if err != nil {
-			return err
-		}
-	}
-
-	settingsCache[guildID] = &Setting{
-		GuildID:           guildID,
-		RemoveCommands:    removeCommands,
-		VoiceID:           voiceID,
-		CategoryID:        categoryID,
-		VoiceTemplateName: voiceTemplateName,
-		IsEnabled:         isEnabled,
-	}
-
-	return nil
 }
 
 // Closure time babyyy

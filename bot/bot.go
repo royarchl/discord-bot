@@ -15,30 +15,21 @@ import (
 )
 
 var (
-	// Global Variables
 	BotToken string
 )
 
 func Run() {
-	// Open database connection
-	log.Println("Opening database connection...")
 	db, err := settings.InitDatabase()
 	errors.CheckNilErr(err)
 	defer db.Close()
 
-	// create a session
-	log.Println("Establishing connection to Discord...")
 	session, err := discordgo.New("Bot " + BotToken)
 	errors.CheckNilErr(err)
 
-	// add event handlers
-	log.Println("Adding handlers...")
-	// Triggers when bot joins or reconnects to a guild
 	session.AddHandler(commands.OnGuildJoin)
 	session.AddHandler(text.NewMessage)
 	session.AddHandler(voice.VoiceStateUpdate)
 	session.AddHandler(commands.SetCommands)
-	// Triggers when bot leaves or disconnects from a guild
 	session.AddHandler(commands.OnGuildLeave)
 
 	err = session.Open()
@@ -51,13 +42,9 @@ func Run() {
 	signal.Notify(channel, os.Interrupt)
 	<-channel
 
-	log.Println("Removing commands...")
+  log.Println("Shutting down gracefully")
+
 	for _, guild := range session.State.Guilds {
-		log.Printf("[GLD] %v", guild.Name)
 		commands.RemoveCommands(session, guild.ID)
 	}
-
-	log.Println("Terminating connection to Discord...")
-	log.Println("Closing database connection...")
-	log.Println("Gracefully shutting down.")
 }

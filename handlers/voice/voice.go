@@ -15,17 +15,12 @@ import (
 var (
 	voiceChannelUsers = make(map[string]int)
 	mu                sync.RWMutex
-	// FunctionalityEnabled = false
 )
 
 func VoiceStateUpdate(session *discordgo.Session, voiceState *discordgo.VoiceStateUpdate) {
 	// Allows concurrency (threads)
 	mu.Lock()
 	defer mu.Unlock()
-
-	// if !FunctionalityEnabled {
-	// 	return
-	// }
 
 	guildSettings := settings.QueryGuildSetting(voiceState.GuildID)
 	if guildSettings == nil || !guildSettings.IsEnabled {
