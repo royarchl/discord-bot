@@ -8,7 +8,7 @@ A personal project to recreate the functionality of creating temporary VCs, whic
 - Persistent storage of settings between sessions (bot going offline)
 
 > [!NOTE]
-> Go to the **settings.go** file and read through the ModifyGuildSettings() function. Look at that sick use of closures and variatic functions. You can see how those functions are used in the **commands.go** file.
+> Go to the [settings.go](handlers/settings/settings.go) file and read through the ModifyGuildSettings() function. Look at that sick use of closures and variatic functions. You can see how those functions are used in the [commands.go](handlers/commands/commands.go) file.
 
 ### Dependencies
 - [discordgo](https://github.com/bwmarrin/discordgo)
