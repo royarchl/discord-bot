@@ -17,7 +17,7 @@ var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "about",
-			Description: "A link to the source code of the application",
+			Description: "Posts a link to the source code",
 			Type:        discordgo.ChatApplicationCommand,
 		},
 		{
@@ -97,7 +97,7 @@ var (
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "https://github.com/royarchl/",
+					Content: "https://github.com/royarchl/discord-bot",
 				},
 			})
 		},
